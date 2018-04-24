@@ -711,25 +711,6 @@ static int pp_dpm_get_temperature(void *handle)
 	return ret;
 }
 
-int amdgpu_pp_dpm_get_temperature_ctf(void *handle)
-{
-	struct pp_hwmgr  *hwmgr;
-	struct pp_instance *pp_handle = (struct pp_instance *)handle;
-	int ret = 0;
-
-	ret = pp_check(pp_handle);
-
-	if (ret)
-		return ret;
-
-	hwmgr = pp_handle->hwmgr;
-
-	mutex_lock(&pp_handle->pp_lock);
-	ret = vega10_thermal_get_temperature_ctf(hwmgr);
-	mutex_unlock(&pp_handle->pp_lock);
-	return ret;
-}
-
 int amdgpu_pp_dpm_get_temperature_asic(void *handle)
 {
 	struct pp_hwmgr  *hwmgr;

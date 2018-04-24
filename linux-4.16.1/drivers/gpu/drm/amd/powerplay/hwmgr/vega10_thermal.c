@@ -376,32 +376,6 @@ int vega10_thermal_get_temperature(struct pp_hwmgr *hwmgr)
 }
 
 /**
-* Reads the remote temperature from the SIslands thermal controller.
-*
-* @param    hwmgr The address of the hardware manager.
-*/
-int vega10_thermal_get_temperature_ctf(struct pp_hwmgr *hwmgr)
-{
-	int temp;
-	uint32_t reg;
-
-	reg = soc15_get_register_offset(THM_HWID, 0,
-			mmCG_MULT_THERMAL_STATUS_BASE_IDX,  mmCG_MULT_THERMAL_STATUS);
-
-	temp = cgs_read_register(hwmgr->device, reg);
-
-	temp = (temp & CG_MULT_THERMAL_STATUS__CTF_TEMP_MASK) >>
-			CG_MULT_THERMAL_STATUS__CTF_TEMP__SHIFT;
-
-	temp = temp & 0x1ff;
-
-	temp *= PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
-
-	return temp;
-}
-
-
-/**
 * Reads the remote temperature from ASIC
 *
 * @param    hwmgr The address of the hardware manager.

@@ -1,16 +1,17 @@
 ## AMDGPU VEGA HotSpot temperature patch
 
-This simple patch introduces the additional temperatures into hardware monitor:
+This simple patch introduces the additional temperature into hardware monitor:
 
-* temp2_input - (CTF temperature) main GPU temperature
-* temp3_input - (ASIC_MAX temperature) GPU hot spot temperature
+* temp2_input - (ASIC_MAX temperature) GPU hot spot temperature
 
 Currently, this patch is for kernel 4.16 line (this patch can be applied to 4.15 version).
-These temperatures sensors will be added for VEGA devices.
+These temperature sensor will be added for the VEGA devices.
+
+The temp1_input is graphics card's main temperature sensors (since Linux 4.15 version).
 
 ### Applying patch
 
-Enter to you linux kernel directory and enter command:
+Enter to your linux kernel directory and enter command:
 
 ```
 patch -p1 < vega10_extratemps-X.Y.Z.patch
@@ -18,7 +19,7 @@ patch -p1 < vega10_extratemps-X.Y.Z.patch
 
 and you can make your kernel.
 
-### How to read sensors
+### How to read sensor
 
 Just by putting command (if you have configured lm3-sensors):
 
@@ -30,12 +31,19 @@ or by reading from file in sysfs:
 
 ```
 cat /sys/class/drm/cardX/device/hwmon/hwmonY/temp2_input
-cat /sys/class/drm/cardX/device/hwmon/hwmonY/temp3_input
 ```
 
 where cardX is your VEGA graphic card and hwmon is your hwmon for this card.
+
+New version of the AMDCOVC 0.3.9.2 can read extra temperature sensors and
+you can use this tool to read a hot spot temperature.
 
 ### Linux directory
 
 The linux-4.16.1 directory holds amdgpu driver with applied changes.
 This is not whole Linux kernel sources.
+
+### Previous version
+
+The initial version of this patch provided two extra temperature sensors
+(first was doubling standard temp1_input and second was the hot spot temperature sensor).

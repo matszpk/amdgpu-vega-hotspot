@@ -1,13 +1,10 @@
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-04-23 16:57:03.015381850 +0200
-@@ -268,6 +268,12 @@
++++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-04-24 06:38:01.260639202 +0200
+@@ -268,6 +268,9 @@
  #define amdgpu_dpm_get_temperature(adev) \
  		((adev)->powerplay.pp_funcs->get_temperature((adev)->powerplay.pp_handle))
  
-+#define amdgpu_dpm_get_temperature_ctf(adev) \
-+		(amdgpu_pp_dpm_get_temperature_ctf((adev)->powerplay.pp_handle))
-+
 +#define amdgpu_dpm_get_temperature_asic(adev) \
 +		(amdgpu_pp_dpm_get_temperature_asic((adev)->powerplay.pp_handle))
 +
@@ -16,12 +13,11 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.16.1
  
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu.h linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu.h
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu.h	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu.h	2018-04-23 16:55:47.304468361 +0200
-@@ -1969,6 +1969,9 @@
++++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu.h	2018-04-24 06:38:25.068347412 +0200
+@@ -1969,6 +1969,8 @@
  
  struct amdgpu_afmt_acr amdgpu_afmt_acr(uint32_t clock);
  
-+extern int amdgpu_pp_dpm_get_temperature_ctf(void *handle);
 +extern int amdgpu_pp_dpm_get_temperature_asic(void *handle);
 +
  /* amdgpu_acpi.c */
@@ -29,32 +25,11 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu.h linux-4.16.1/dri
  int amdgpu_acpi_init(struct amdgpu_device *adev);
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-04-23 16:56:11.328123603 +0200
-@@ -794,6 +794,48 @@
++++ linux-4.16.1/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-04-24 06:39:52.947270283 +0200
+@@ -794,6 +794,27 @@
  	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
  }
  
-+static ssize_t amdgpu_hwmon_show_temp_ctf(struct device *dev,
-+				      struct device_attribute *attr,
-+				      char *buf)
-+{
-+	struct amdgpu_device *adev = dev_get_drvdata(dev);
-+	struct drm_device *ddev = adev->ddev;
-+	int temp;
-+
-+	/* Can't get temperature when the card is off */
-+	if  ((adev->flags & AMD_IS_PX) &&
-+	     (ddev->switch_power_state != DRM_SWITCH_POWER_ON))
-+		return -EINVAL;
-+	
-+	if (adev->family != AMDGPU_FAMILY_AI)
-+		return -EINVAL;
-+
-+	temp = amdgpu_dpm_get_temperature_ctf(adev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
-+}
-+
 +static ssize_t amdgpu_hwmon_show_temp_asic(struct device *dev,
 +				      struct device_attribute *attr,
 +				      char *buf)
@@ -79,39 +54,36 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.16.1/
  static ssize_t amdgpu_hwmon_show_temp_thresh(struct device *dev,
  					     struct device_attribute *attr,
  					     char *buf)
-@@ -922,6 +964,8 @@
+@@ -922,6 +943,7 @@
  static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, amdgpu_hwmon_show_temp, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit_hyst, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, amdgpu_hwmon_show_temp_ctf, NULL, 0);
-+static SENSOR_DEVICE_ATTR(temp3_input, S_IRUGO, amdgpu_hwmon_show_temp_asic, NULL, 0);
++static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, amdgpu_hwmon_show_temp_asic, NULL, 0);
  static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1, amdgpu_hwmon_set_pwm1, 0);
  static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1_enable, amdgpu_hwmon_set_pwm1_enable, 0);
  static SENSOR_DEVICE_ATTR(pwm1_min, S_IRUGO, amdgpu_hwmon_get_pwm1_min, NULL, 0);
-@@ -932,6 +976,8 @@
+@@ -932,6 +954,7 @@
  	&sensor_dev_attr_temp1_input.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit_hyst.dev_attr.attr,
 +	&sensor_dev_attr_temp2_input.dev_attr.attr,
-+	&sensor_dev_attr_temp3_input.dev_attr.attr,
  	&sensor_dev_attr_pwm1.dev_attr.attr,
  	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
  	&sensor_dev_attr_pwm1_min.dev_attr.attr,
-@@ -946,6 +992,11 @@
+@@ -946,6 +969,10 @@
  	struct device *dev = kobj_to_dev(kobj);
  	struct amdgpu_device *adev = dev_get_drvdata(dev);
  	umode_t effective_mode = attr->mode;
 +        
 +	if (adev->family != AMDGPU_FAMILY_AI &&
-+	    (attr == &sensor_dev_attr_temp2_input.dev_attr.attr ||
-+	     attr == &sensor_dev_attr_temp3_input.dev_attr.attr))
++	    (attr == &sensor_dev_attr_temp2_input.dev_attr.attr))
 +		return 0;
  
  	/* no skipping for powerplay */
  	if (adev->powerplay.cgs_device)
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-23 16:59:56.208912012 +0200
++++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-24 06:41:01.298430622 +0200
 @@ -29,6 +29,7 @@
  #include "amd_powerplay.h"
  #include "pp_instance.h"
@@ -120,29 +92,10 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-
  
  #define PP_DPM_DISABLED 0xCCCC
  
-@@ -709,6 +710,44 @@
+@@ -709,6 +710,25 @@
  	mutex_unlock(&pp_handle->pp_lock);
  	return ret;
  }
-+
-+int amdgpu_pp_dpm_get_temperature_ctf(void *handle)
-+{
-+	struct pp_hwmgr  *hwmgr;
-+	struct pp_instance *pp_handle = (struct pp_instance *)handle;
-+	int ret = 0;
-+
-+	ret = pp_check(pp_handle);
-+
-+	if (ret)
-+		return ret;
-+
-+	hwmgr = pp_handle->hwmgr;
-+
-+	mutex_lock(&pp_handle->pp_lock);
-+	ret = vega10_thermal_get_temperature_ctf(hwmgr);
-+	mutex_unlock(&pp_handle->pp_lock);
-+	return ret;
-+}
 +
 +int amdgpu_pp_dpm_get_temperature_asic(void *handle)
 +{
@@ -167,37 +120,11 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-
  		struct pp_states_info *data)
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-04-23 14:59:31.039151122 +0200
-@@ -376,6 +376,58 @@
++++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-04-24 06:41:56.909747463 +0200
+@@ -376,6 +376,32 @@
  }
  
  /**
-+* Reads the remote temperature from the SIslands thermal controller.
-+*
-+* @param    hwmgr The address of the hardware manager.
-+*/
-+int vega10_thermal_get_temperature_ctf(struct pp_hwmgr *hwmgr)
-+{
-+	int temp;
-+	uint32_t reg;
-+
-+	reg = soc15_get_register_offset(THM_HWID, 0,
-+			mmCG_MULT_THERMAL_STATUS_BASE_IDX,  mmCG_MULT_THERMAL_STATUS);
-+
-+	temp = cgs_read_register(hwmgr->device, reg);
-+
-+	temp = (temp & CG_MULT_THERMAL_STATUS__CTF_TEMP_MASK) >>
-+			CG_MULT_THERMAL_STATUS__CTF_TEMP__SHIFT;
-+
-+	temp = temp & 0x1ff;
-+
-+	temp *= PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
-+
-+	return temp;
-+}
-+
-+
-+/**
 +* Reads the remote temperature from ASIC
 +*
 +* @param    hwmgr The address of the hardware manager.
@@ -229,12 +156,11 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
  * @param    hwmgr The address of the hardware manager.
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-04-23 14:59:59.438775240 +0200
-@@ -51,6 +51,8 @@
++++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-04-24 06:42:22.613431456 +0200
+@@ -51,6 +51,7 @@
  
  
  extern int vega10_thermal_get_temperature(struct pp_hwmgr *hwmgr);
-+extern int vega10_thermal_get_temperature_ctf(struct pp_hwmgr *hwmgr);
 +extern int vega10_thermal_get_temperature_asic(struct pp_hwmgr *hwmgr);
  extern int vega10_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
  extern int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
