@@ -1,4 +1,4 @@
-## AMDGPU Fiji/Tonga/Polaris/VEGA HotSpot temperature patch
+## AMDGPU HotSpot (ASIC_MAX) temperature patch
 
 This simple patch introduces the additional temperature into hardware monitor:
 
