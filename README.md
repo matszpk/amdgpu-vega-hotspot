@@ -7,17 +7,21 @@ This simple patch introduces the additional temperature into hardware monitor:
 Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
 Currently, this patch is for kernel 4.16 line (this patch can be applied to 4.15 version).
-These temperature sensor will be added for the VEGA and GCN 1.2/1.3
-(Fiji, Tonga, Polaris) devices.
+This temperature input will be added for all graphics cards.
 
-The temp1_input is graphics card's main (CTF) temperature (since Linux 4.15 version).
+The temp1_input is graphics card's main (CTF) temperature.
+
+### Patches
+
+* vega10_extratemps-X.X.X.patch - original VEGA 10 patch (apply only for VEGA)
+* amdgpu_extratemps-X.X.X.patch - AMDGPU patch for all graphics cards
 
 ### Applying patch
 
 Enter to your linux kernel directory and enter command:
 
 ```
-patch -p1 < vega10_extratemps-X.Y.Z.patch
+patch -p1 < amdgpu_extratemps-X.Y.Z.patch
 ```
 
 and you can make your kernel.

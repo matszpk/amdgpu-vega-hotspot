@@ -6256,6 +6256,31 @@ static int ci_dpm_get_temp(void *handle)
 	return actual_temp;
 }
 
+/* get temperature in millidegrees */
+static int ci_dpm_get_temp_asic_max(void *handle)
+{
+	u32 temp;
+	int actual_temp = 0;
+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+
+	temp = (RREG32_SMC(ixCG_MULT_THERMAL_STATUS) & CG_MULT_THERMAL_STATUS__ASIC_MAX_TEMP_MASK) >>
+		CG_MULT_THERMAL_STATUS__ASIC_MAX_TEMP__SHIFT;
+
+	if (temp & 0x200)
+		actual_temp = 255;
+	else
+		actual_temp = temp & 0x1ff;
+
+	actual_temp = actual_temp * 1000;
+
+	return actual_temp;
+}
+
+static int ci_dpm_have_temp_asic_max(void *handle)
+{
+	return 1;
+}
+
 static int ci_set_temperature_range(struct amdgpu_device *adev)
 {
 	int ret;
@@ -7030,6 +7055,8 @@ const struct amd_ip_funcs ci_dpm_ip_funcs = {
 
 const struct amd_pm_funcs ci_dpm_funcs = {
 	.get_temperature = &ci_dpm_get_temp,
+	.get_temperature_asic_max = &ci_dpm_get_temp_asic_max,
+	.have_temperature_asic_max = &ci_dpm_have_temp_asic_max,
 	.pre_set_power_state = &ci_dpm_pre_set_power_state,
 	.set_power_state = &ci_dpm_set_power_state,
 	.post_set_power_state = &ci_dpm_post_set_power_state,
