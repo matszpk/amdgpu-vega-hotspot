@@ -1,4 +1,4 @@
-## AMDGPU Hawaii/Fiji/Tonga/Polaris/VEGA HotSpot temperature patch
+## AMDGPU Fiji/Tonga/Polaris/VEGA HotSpot temperature patch
 
 This simple patch introduces the additional temperature into hardware monitor:
 
@@ -8,7 +8,7 @@ Exactly, this is an aggregated value, the maximal temperature from the internal 
 
 Currently, this patch is for kernel 4.16 line (this patch can be applied to 4.15 version).
 These temperature sensor will be added for the VEGA and GCN 1.2/1.3
-(Hawaii, Fiji, Tonga, Polaris) devices.
+(Fiji, Tonga, Polaris) devices.
 
 The temp1_input is graphics card's main (CTF) temperature (since Linux 4.15 version).
 
