@@ -39,6 +39,7 @@
 #define FDO_PWM_MODE_STATIC_RPM 5
 
 extern int smu7_thermal_get_temperature(struct pp_hwmgr *hwmgr);
+extern int smu7_thermal_get_temperature_asic_max(struct pp_hwmgr *hwmgr);
 extern int smu7_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
 extern int smu7_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr, struct phm_fan_speed_info *fan_speed_info);
 extern int smu7_fan_ctrl_get_fan_speed_percent(struct pp_hwmgr *hwmgr, uint32_t *speed);

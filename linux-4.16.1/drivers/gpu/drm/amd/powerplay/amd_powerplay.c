@@ -29,7 +29,6 @@
 #include "amd_powerplay.h"
 #include "pp_instance.h"
 #include "power_state.h"
-#include "hwmgr/vega10_thermal.h"
 
 #define PP_DPM_DISABLED 0xCCCC
 
@@ -711,7 +710,7 @@ static int pp_dpm_get_temperature(void *handle)
 	return ret;
 }
 
-int amdgpu_pp_dpm_get_temperature_asic(void *handle)
+static int pp_dpm_get_temperature_asic_max(void *handle)
 {
 	struct pp_hwmgr  *hwmgr;
 	struct pp_instance *pp_handle = (struct pp_instance *)handle;
@@ -724,11 +723,38 @@ int amdgpu_pp_dpm_get_temperature_asic(void *handle)
 
 	hwmgr = pp_handle->hwmgr;
 
+	if (hwmgr->hwmgr_func->get_temperature_asic_max == NULL) {
+		pr_info("%s was not implemented.\n", __func__);
+		return 0;
+	}
 	mutex_lock(&pp_handle->pp_lock);
-	ret = vega10_thermal_get_temperature_asic(hwmgr);
+	ret = hwmgr->hwmgr_func->get_temperature_asic_max(hwmgr);
 	mutex_unlock(&pp_handle->pp_lock);
 	return ret;
 }
+
+static int pp_dpm_have_temperature_asic_max(void *handle)
+{
+	struct pp_hwmgr  *hwmgr;
+	struct pp_instance *pp_handle = (struct pp_instance *)handle;
+	int ret = 0;
+
+	ret = pp_check(pp_handle);
+
+	if (ret)
+		return ret;
+
+	hwmgr = pp_handle->hwmgr;
+
+	if (hwmgr->hwmgr_func == NULL)
+		return 0;
+
+	if (hwmgr->hwmgr_func->get_temperature_asic_max == NULL)
+		return 0;
+	// we have asic max
+	return 1;
+}
+
 
 static int pp_dpm_get_pp_num_states(void *handle,
 		struct pp_states_info *data)
@@ -1454,6 +1480,8 @@ static int pp_get_display_mode_validation_clocks(void *handle,
 
 const struct amd_pm_funcs pp_dpm_funcs = {
 	.get_temperature = pp_dpm_get_temperature,
+	.get_temperature_asic_max = pp_dpm_get_temperature_asic_max,
+	.have_temperature_asic_max = pp_dpm_have_temperature_asic_max,
 	.load_firmware = pp_dpm_load_fw,
 	.wait_for_fw_loading_complete = pp_dpm_fw_loading_complete,
 	.force_performance_level = pp_dpm_force_performance_level,

@@ -301,6 +301,30 @@ int smu7_thermal_get_temperature(struct pp_hwmgr *hwmgr)
 }
 
 /**
+* Reads the remote temperature from the SIslands thermal controller (ASIC MAX)
+*
+* @param    hwmgr The address of the hardware manager.
+*/
+int smu7_thermal_get_temperature_asic_max(struct pp_hwmgr *hwmgr)
+{
+	int temp;
+
+	temp = PHM_READ_VFPF_INDIRECT_FIELD(hwmgr->device, CGS_IND_REG__SMC,
+			CG_MULT_THERMAL_STATUS, ASIC_MAX_TEMP);
+
+	/* Bit 9 means the reading is lower than the lowest usable value. */
+	if (temp & 0x200)
+		temp = SMU7_THERMAL_MAXIMUM_TEMP_READING;
+	else
+		temp = temp & 0x1ff;
+
+	temp *= PP_TEMPERATURE_UNITS_PER_CENTIGRADES;
+
+	return temp;
+}
+
+
+/**
 * Set the requested temperature range for high and low alert signals
 *
 * @param    hwmgr The address of the hardware manager.

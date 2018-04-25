@@ -268,8 +268,11 @@ enum amdgpu_pcie_gen {
 #define amdgpu_dpm_get_temperature(adev) \
 		((adev)->powerplay.pp_funcs->get_temperature((adev)->powerplay.pp_handle))
 
-#define amdgpu_dpm_get_temperature_asic(adev) \
-		(amdgpu_pp_dpm_get_temperature_asic((adev)->powerplay.pp_handle))
+#define amdgpu_dpm_get_temperature_asic_max(adev) \
+		((adev)->powerplay.pp_funcs->get_temperature_asic_max((adev)->powerplay.pp_handle))
+
+#define amdgpu_dpm_have_temperature_asic_max(adev) \
+		((adev)->powerplay.pp_funcs->have_temperature_asic_max((adev)->powerplay.pp_handle))
 
 #define amdgpu_dpm_set_fan_control_mode(adev, m) \
 		((adev)->powerplay.pp_funcs->set_fan_control_mode((adev)->powerplay.pp_handle, (m)))

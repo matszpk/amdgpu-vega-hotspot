@@ -1,13 +1,16 @@
-## AMDGPU VEGA HotSpot temperature patch
+## AMDGPU Hawaii/Fiji/Tonga/Polaris/VEGA HotSpot temperature patch
 
 This simple patch introduces the additional temperature into hardware monitor:
 
 * temp2_input - (ASIC_MAX temperature) GPU hot spot temperature
 
-Currently, this patch is for kernel 4.16 line (this patch can be applied to 4.15 version).
-These temperature sensor will be added for the VEGA devices.
+Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
-The temp1_input is graphics card's main temperature sensors (since Linux 4.15 version).
+Currently, this patch is for kernel 4.16 line (this patch can be applied to 4.15 version).
+These temperature sensor will be added for the VEGA and GCN 1.2/1.3
+(Hawaii, Fiji, Tonga, Polaris) devices.
+
+The temp1_input is graphics card's main (CTF) temperature (since Linux 4.15 version).
 
 ### Applying patch
 

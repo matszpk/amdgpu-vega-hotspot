@@ -1969,8 +1969,6 @@ struct amdgpu_afmt_acr {
 
 struct amdgpu_afmt_acr amdgpu_afmt_acr(uint32_t clock);
 
-extern int amdgpu_pp_dpm_get_temperature_asic(void *handle);
-
 /* amdgpu_acpi.c */
 #if defined(CONFIG_ACPI)
 int amdgpu_acpi_init(struct amdgpu_device *adev);

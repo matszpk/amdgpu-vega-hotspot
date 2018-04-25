@@ -376,11 +376,11 @@ int vega10_thermal_get_temperature(struct pp_hwmgr *hwmgr)
 }
 
 /**
-* Reads the remote temperature from ASIC
+* Reads the remote temperature from ASIC MAX
 *
 * @param    hwmgr The address of the hardware manager.
 */
-int vega10_thermal_get_temperature_asic(struct pp_hwmgr *hwmgr)
+int vega10_thermal_get_temperature_asic_max(struct pp_hwmgr *hwmgr)
 {
 	int temp;
 	uint32_t reg;

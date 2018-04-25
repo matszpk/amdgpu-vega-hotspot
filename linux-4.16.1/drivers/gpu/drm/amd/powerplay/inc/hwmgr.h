@@ -339,6 +339,8 @@ struct pp_hwmgr_func {
 					uint32_t mc_addr_low,
 					uint32_t mc_addr_hi,
 					uint32_t size);
+	// my ASIC MAX temperature
+	int (*get_temperature_asic_max)(struct pp_hwmgr *hwmgr);
 };
 
 struct pp_table_func {

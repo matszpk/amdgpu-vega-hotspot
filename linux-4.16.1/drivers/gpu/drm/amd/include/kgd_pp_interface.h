@@ -289,6 +289,9 @@ struct amd_pm_funcs {
 				struct pp_display_clock_request *clock);
 	int (*get_display_mode_validation_clocks)(void *handle,
 		struct amd_pp_simple_clock_info *clocks);
+	// my ASIC_MAX temperature
+	int (*get_temperature_asic_max)(void *handle);
+	int (*have_temperature_asic_max)(void *handle);
 };
 
 #endif
