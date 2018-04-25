@@ -38,7 +38,7 @@ cat /sys/class/drm/cardX/device/hwmon/hwmonY/temp2_input
 
 where cardX is your VEGA graphic card and hwmon is your hwmon for this card.
 
-New version of the AMDCOVC 0.3.9.2 can read extra temperature sensors and
+New version of the AMDCOVC 0.3.9.2 can read extra temperatures and
 you can use this tool to read a hot spot temperature.
 
 ### Linux directory
