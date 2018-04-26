@@ -6,7 +6,7 @@ This simple patch introduces the additional temperature into hardware monitor:
 
 Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
-Currently, this patch is for kernel 4.15 version and 4.16 version.
+Currently, this patch is for kernels 4.14 - 4.16.
 This temperature input will be added for all graphics cards.
 
 The temp1_input is graphics card's main (CTF) temperature.
