@@ -176,7 +176,7 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/include/kgd_pp_interface.h linux
  #endif
 diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
 --- linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-08 14:29:52.000000000 +0200
-+++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-25 11:56:29.902513029 +0200
++++ linux-4.16.1/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-26 16:59:28.802826934 +0200
 @@ -710,6 +710,52 @@
  	return ret;
  }
@@ -213,7 +213,7 @@ diff -rau linux-4.16.1-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-
 +	ret = pp_check(pp_handle);
 +
 +	if (ret)
-+		return ret;
++		return 0;
 +
 +	hwmgr = pp_handle->hwmgr;
 +

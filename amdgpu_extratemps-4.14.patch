@@ -28,7 +28,6 @@ diff -rau linux-4.14-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.14/dri
  #define amdgpu_dpm_set_fan_control_mode(adev, m) \
  	((adev)->pp_enabled ?						\
  	      (adev)->powerplay.pp_funcs->set_fan_control_mode((adev)->powerplay.pp_handle, (m)) : \
-Tylko w linux-4.14/drivers/gpu/drm/amd/amdgpu: amdgpu_dpm.h~
 diff -rau linux-4.14-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.14/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
 --- linux-4.14-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2017-11-12 19:46:13.000000000 +0100
 +++ linux-4.14/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-04-25 20:23:32.768884328 +0200
@@ -176,7 +175,7 @@ diff -rau linux-4.14-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c linux-4.14/drivers
  	.post_set_power_state = &si_dpm_post_set_power_state,
 diff -rau linux-4.14-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.14/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
 --- linux-4.14-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2017-11-12 19:46:13.000000000 +0100
-+++ linux-4.14/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-25 19:54:01.273803740 +0200
++++ linux-4.14/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-04-26 17:00:15.806829699 +0200
 @@ -700,6 +700,52 @@
  	return ret;
  }
@@ -213,7 +212,7 @@ diff -rau linux-4.14-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.
 +	ret = pp_check(pp_handle);
 +
 +	if (ret)
-+		return ret;
++		return 0;
 +
 +	hwmgr = pp_handle->hwmgr;
 +

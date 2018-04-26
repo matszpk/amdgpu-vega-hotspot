@@ -742,7 +742,7 @@ static int pp_dpm_have_temperature_asic_max(void *handle)
 	ret = pp_check(pp_handle);
 
 	if (ret)
-		return ret;
+		return 0;
 
 	hwmgr = pp_handle->hwmgr;
 
