@@ -1,4 +1,4 @@
-## AMDGPU HotSpot (ASIC_MAX) temperature patch
+## AMDGPU/Radeon HotSpot (ASIC_MAX) temperature patch
 
 This simple patch introduces the additional temperature into hardware monitor:
 
@@ -7,14 +7,16 @@ This simple patch introduces the additional temperature into hardware monitor:
 Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
 Currently, this patch is for kernels 4.10 - 4.16.
-This temperature input will be added for all discrete graphics cards (but not APUs).
+This temperature input will be added for all discrete graphics cards (but not APUs)
+except older than GCN 1.0 (Radeon HD 4000/3000/4000/5000/6000).
 
 The temp1_input is graphics card's main (CTF) temperature.
 
 ### Patches
 
 * vega10_extratemps-X.X.X.patch - original VEGA 10 patch (apply only for VEGA)
-* amdgpu_extratemps-X.X.X.patch - AMDGPU patch for all graphics cards
+* amdgpu_extratemps-X.X.X.patch - AMDGPU driver patch for all graphics cards
+* radeon_extratemps-X.X.X.patch - Radeon driver patch for GCN1.0/1.1 graphics cards
 
 ### Applying patch
 
@@ -22,6 +24,7 @@ Enter to your linux kernel directory and enter command:
 
 ```
 patch -p1 < amdgpu_extratemps-X.Y.Z.patch
+patch -p1 < radeon_extratemps-X.Y.Z.patch
 ```
 
 and you can make your kernel.
