@@ -6,7 +6,7 @@ This simple patch introduces the additional temperature into hardware monitor:
 
 Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
-Currently, this patch is for kernels 4.10 - 4.16.
+Currently, this patch is for kernels 4.10 - 4.17.
 This temperature input will be added for all discrete graphics cards (but not APUs)
 except older than GCN 1.0 (Radeon HD 4000/3000/4000/5000/6000).
 
