@@ -60,7 +60,7 @@ will be printed by `dkms status`. After all, reboot system.
 
 ### How to read sensor
 
-Just by putting command (if you have configured lm3-sensors):
+Just by putting command (if you have configured lm-sensors):
 
 ```
 sensors
