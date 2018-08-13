@@ -16,8 +16,8 @@ diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_dpm.h amdgpu-18.20-606297/a
  
 diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c amdgpu-18.20-606297/amd/amdgpu/amdgpu_pm.c
 --- amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c	2018-06-13 12:01:06.000000000 +0200
-+++ amdgpu-18.20-606297/amd/amdgpu/amdgpu_pm.c	2018-06-21 09:32:52.231831366 +0200
-@@ -796,6 +796,27 @@
++++ amdgpu-18.20-606297/amd/amdgpu/amdgpu_pm.c	2018-08-13 11:32:48.745425179 +0200
+@@ -796,6 +796,28 @@
  	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
  }
  
@@ -34,7 +34,8 @@ diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c amdgpu-18.20-606297/am
 +	     (ddev->switch_power_state != DRM_SWITCH_POWER_ON))
 +		return -EINVAL;
 +
-+	if (!adev->powerplay.pp_funcs->get_temperature_asic_max)
++	if (!(adev->powerplay.pp_funcs &&
++		 adev->powerplay.pp_funcs->get_temperature_asic_max))
 +		temp = 0;
 +	else
 +		temp = amdgpu_dpm_get_temperature_asic_max(adev);
@@ -45,7 +46,7 @@ diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c amdgpu-18.20-606297/am
  static ssize_t amdgpu_hwmon_show_temp_thresh(struct device *dev,
  					     struct device_attribute *attr,
  					     char *buf)
-@@ -1153,6 +1174,7 @@
+@@ -1153,6 +1175,7 @@
  static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, amdgpu_hwmon_show_temp, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit_hyst, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 1);
@@ -53,7 +54,7 @@ diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c amdgpu-18.20-606297/am
  static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1, amdgpu_hwmon_set_pwm1, 0);
  static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1_enable, amdgpu_hwmon_set_pwm1_enable, 0);
  static SENSOR_DEVICE_ATTR(pwm1_min, S_IRUGO, amdgpu_hwmon_get_pwm1_min, NULL, 0);
-@@ -1171,6 +1193,7 @@
+@@ -1171,6 +1194,7 @@
  	&sensor_dev_attr_temp1_input.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit_hyst.dev_attr.attr,
@@ -61,7 +62,7 @@ diff -rau amdgpu-18.20-606297-orig/amd/amdgpu/amdgpu_pm.c amdgpu-18.20-606297/am
  	&sensor_dev_attr_pwm1.dev_attr.attr,
  	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
  	&sensor_dev_attr_pwm1_min.dev_attr.attr,
-@@ -1193,6 +1216,11 @@
+@@ -1193,6 +1217,11 @@
  	struct device *dev = kobj_to_dev(kobj);
  	struct amdgpu_device *adev = dev_get_drvdata(dev);
  	umode_t effective_mode = attr->mode;

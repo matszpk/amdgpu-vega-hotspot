@@ -16,8 +16,8 @@ diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.17/dri
  
 diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.17/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
 --- linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-06-03 23:15:21.000000000 +0200
-+++ linux-4.17/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-06-04 19:42:16.796101470 +0200
-@@ -795,6 +795,27 @@
++++ linux-4.17/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-08-13 11:23:25.749767415 +0200
+@@ -795,6 +795,28 @@
  	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
  }
  
@@ -34,7 +34,8 @@ diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.17/driv
 +	     (ddev->switch_power_state != DRM_SWITCH_POWER_ON))
 +		return -EINVAL;
 +
-+	if (!adev->powerplay.pp_funcs->get_temperature_asic_max)
++	if (!(adev->powerplay.pp_funcs &&
++		 adev->powerplay.pp_funcs->get_temperature_asic_max))
 +		temp = 0;
 +	else
 +		temp = amdgpu_dpm_get_temperature_asic_max(adev);
@@ -45,7 +46,7 @@ diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.17/driv
  static ssize_t amdgpu_hwmon_show_temp_thresh(struct device *dev,
  					     struct device_attribute *attr,
  					     char *buf)
-@@ -1112,6 +1133,7 @@
+@@ -1112,6 +1134,7 @@
  static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, amdgpu_hwmon_show_temp, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit_hyst, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 1);
@@ -53,7 +54,7 @@ diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.17/driv
  static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1, amdgpu_hwmon_set_pwm1, 0);
  static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1_enable, amdgpu_hwmon_set_pwm1_enable, 0);
  static SENSOR_DEVICE_ATTR(pwm1_min, S_IRUGO, amdgpu_hwmon_get_pwm1_min, NULL, 0);
-@@ -1130,6 +1152,7 @@
+@@ -1130,6 +1153,7 @@
  	&sensor_dev_attr_temp1_input.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit_hyst.dev_attr.attr,
@@ -61,7 +62,7 @@ diff -rau linux-4.17-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.17/driv
  	&sensor_dev_attr_pwm1.dev_attr.attr,
  	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
  	&sensor_dev_attr_pwm1_min.dev_attr.attr,
-@@ -1152,6 +1175,11 @@
+@@ -1152,6 +1176,11 @@
  	struct device *dev = kobj_to_dev(kobj);
  	struct amdgpu_device *adev = dev_get_drvdata(dev);
  	umode_t effective_mode = attr->mode;
