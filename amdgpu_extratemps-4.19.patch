@@ -1,6 +1,6 @@
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.18/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h
---- linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-08-13 13:44:20.208948459 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.19/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h	2018-10-24 12:35:37.257278032 +0200
 @@ -263,6 +263,12 @@
  #define amdgpu_dpm_read_sensor(adev, idx, value, size) \
  		((adev)->powerplay.pp_funcs->read_sensor((adev)->powerplay.pp_handle, (idx), (value), (size)))
@@ -14,10 +14,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_dpm.h linux-4.18/dri
  #define amdgpu_dpm_set_fan_control_mode(adev, m) \
  		((adev)->powerplay.pp_funcs->set_fan_control_mode((adev)->powerplay.pp_handle, (m)))
  
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.18/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
---- linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-08-13 13:44:20.208948459 +0200
-@@ -966,6 +966,28 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.19/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c	2018-10-24 12:35:37.257278032 +0200
+@@ -996,6 +996,28 @@
  	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
  }
  
@@ -46,7 +46,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.18/driv
  static ssize_t amdgpu_hwmon_show_temp_thresh(struct device *dev,
  					     struct device_attribute *attr,
  					     char *buf)
-@@ -1323,6 +1345,7 @@
+@@ -1369,6 +1391,7 @@
  static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, amdgpu_hwmon_show_temp, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 0);
  static SENSOR_DEVICE_ATTR(temp1_crit_hyst, S_IRUGO, amdgpu_hwmon_show_temp_thresh, NULL, 1);
@@ -54,7 +54,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.18/driv
  static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1, amdgpu_hwmon_set_pwm1, 0);
  static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO | S_IWUSR, amdgpu_hwmon_get_pwm1_enable, amdgpu_hwmon_set_pwm1_enable, 0);
  static SENSOR_DEVICE_ATTR(pwm1_min, S_IRUGO, amdgpu_hwmon_get_pwm1_min, NULL, 0);
-@@ -1341,6 +1364,7 @@
+@@ -1387,6 +1410,7 @@
  	&sensor_dev_attr_temp1_input.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit.dev_attr.attr,
  	&sensor_dev_attr_temp1_crit_hyst.dev_attr.attr,
@@ -62,7 +62,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.18/driv
  	&sensor_dev_attr_pwm1.dev_attr.attr,
  	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
  	&sensor_dev_attr_pwm1_min.dev_attr.attr,
-@@ -1363,6 +1387,11 @@
+@@ -1409,6 +1433,11 @@
  	struct device *dev = kobj_to_dev(kobj);
  	struct amdgpu_device *adev = dev_get_drvdata(dev);
  	umode_t effective_mode = attr->mode;
@@ -74,10 +74,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c linux-4.18/driv
  
  
  	/* Skip fan attributes if fan is not present */
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c linux-4.18/drivers/gpu/drm/amd/amdgpu/ci_dpm.c
---- linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/amdgpu/ci_dpm.c	2018-08-13 13:44:20.208948459 +0200
-@@ -6225,6 +6225,31 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c linux-4.19/drivers/gpu/drm/amd/amdgpu/ci_dpm.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/amdgpu/ci_dpm.c	2018-10-24 12:35:37.257278032 +0200
+@@ -6224,6 +6224,31 @@
  	return actual_temp;
  }
  
@@ -109,7 +109,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c linux-4.18/drivers
  static int ci_set_temperature_range(struct amdgpu_device *adev)
  {
  	int ret;
-@@ -6794,6 +6819,8 @@
+@@ -6806,6 +6831,8 @@
  };
  
  static const struct amd_pm_funcs ci_dpm_funcs = {
@@ -118,11 +118,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/ci_dpm.c linux-4.18/drivers
  	.pre_set_power_state = &ci_dpm_pre_set_power_state,
  	.set_power_state = &ci_dpm_set_power_state,
  	.post_set_power_state = &ci_dpm_post_set_power_state,
-Tylko w linux-4.18/drivers/gpu/drm/amd/amdgpu: .directory
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c linux-4.18/drivers/gpu/drm/amd/amdgpu/si_dpm.c
---- linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/amdgpu/si_dpm.c	2018-08-13 13:44:20.208948459 +0200
-@@ -7866,6 +7866,31 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c linux-4.19/drivers/gpu/drm/amd/amdgpu/si_dpm.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/amdgpu/si_dpm.c	2018-10-24 12:35:37.260611341 +0200
+@@ -7864,6 +7864,31 @@
  	return actual_temp;
  }
  
@@ -154,7 +153,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c linux-4.18/drivers
  static u32 si_dpm_get_sclk(void *handle, bool low)
  {
  	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-@@ -8048,6 +8073,8 @@
+@@ -8046,6 +8071,8 @@
  };
  
  static const struct amd_pm_funcs si_dpm_funcs = {
@@ -163,23 +162,23 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/amdgpu/si_dpm.c linux-4.18/drivers
  	.pre_set_power_state = &si_dpm_pre_set_power_state,
  	.set_power_state = &si_dpm_set_power_state,
  	.post_set_power_state = &si_dpm_post_set_power_state,
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/include/kgd_pp_interface.h linux-4.18/drivers/gpu/drm/amd/include/kgd_pp_interface.h
---- linux-4.18-orig/drivers/gpu/drm/amd/include/kgd_pp_interface.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/include/kgd_pp_interface.h	2018-08-13 13:44:20.208948459 +0200
-@@ -270,6 +270,9 @@
- 	int (*set_power_profile_mode)(void *handle, long *input, uint32_t size);
- 	int (*odn_edit_dpm_table)(void *handle, uint32_t type, long *input, uint32_t size);
- 	int (*set_mmhub_powergating_by_smu)(void *handle);
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/include/kgd_pp_interface.h linux-4.19/drivers/gpu/drm/amd/include/kgd_pp_interface.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/include/kgd_pp_interface.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/include/kgd_pp_interface.h	2018-10-24 12:43:24.093697463 +0200
+@@ -269,6 +269,9 @@
+ 	int (*get_display_mode_validation_clocks)(void *handle,
+ 		struct amd_pp_simple_clock_info *clocks);
+ 	int (*notify_smu_enable_pwe)(void *handle);
 +	// my ASIC_MAX temperature
 +	int (*get_temperature_asic_max)(void *handle);
 +	int (*have_temperature_asic_max)(void *handle);
  };
  
  #endif
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.18/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-10-24 14:47:21.246249234 +0200
-@@ -598,6 +598,41 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.19/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/amd_powerplay.c	2018-10-24 14:47:59.739539476 +0200
+@@ -576,6 +576,41 @@
  	return ret;
  }
  
@@ -221,7 +220,7 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.
  static int pp_dpm_get_pp_num_states(void *handle,
  		struct pp_states_info *data)
  {
-@@ -1184,6 +1219,8 @@
+@@ -1226,6 +1261,8 @@
  }
  
  static const struct amd_pm_funcs pp_dpm_funcs = {
@@ -230,10 +229,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/amd_powerplay.c linux-4.
  	.load_firmware = pp_dpm_load_fw,
  	.wait_for_fw_loading_complete = pp_dpm_fw_loading_complete,
  	.force_performance_level = pp_dpm_force_performance_level,
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2018-08-13 13:44:20.212281776 +0200
-@@ -5050,6 +5050,7 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c	2018-10-24 12:35:37.260611341 +0200
+@@ -5053,6 +5053,7 @@
  	.set_mclk_od = smu7_set_mclk_od,
  	.get_clock_by_type = smu7_get_clock_by_type,
  	.read_sensor = smu7_read_sensor,
@@ -241,9 +240,9 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c linux
  	.dynamic_state_management_disable = smu7_disable_dpm_tasks,
  	.avfs_control = smu7_avfs_control,
  	.disable_smc_firmware_ctf = smu7_thermal_disable_alert,
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c	2018-08-13 13:44:20.212281776 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c	2018-10-24 12:35:37.260611341 +0200
 @@ -301,6 +301,30 @@
  }
  
@@ -275,9 +274,9 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.c lin
  * Set the requested temperature range for high and low alert signals
  *
  * @param    hwmgr The address of the hardware manager.
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h	2018-08-13 13:44:20.212281776 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h	2018-10-24 12:35:37.260611341 +0200
 @@ -39,6 +39,7 @@
  #define FDO_PWM_MODE_STATIC_RPM 5
  
@@ -286,10 +285,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_thermal.h lin
  extern int smu7_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
  extern int smu7_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr, struct phm_fan_speed_info *fan_speed_info);
  extern int smu7_fan_ctrl_get_fan_speed_percent(struct pp_hwmgr *hwmgr, uint32_t *speed);
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c	2018-08-13 13:44:20.212281776 +0200
-@@ -4880,6 +4880,7 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c	2018-10-24 12:35:37.260611341 +0200
+@@ -4885,6 +4885,7 @@
  	.set_fan_control_mode = vega10_set_fan_control_mode,
  	.get_fan_control_mode = vega10_get_fan_control_mode,
  	.read_sensor = vega10_read_sensor,
@@ -297,9 +296,9 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c lin
  	.get_dal_power_level = vega10_get_dal_power_level,
  	.get_clock_by_type_with_latency = vega10_get_clock_by_type_with_latency,
  	.get_clock_by_type_with_voltage = vega10_get_clock_by_type_with_voltage,
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-08-13 14:03:25.512812458 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c	2018-10-24 12:35:37.260611341 +0200
 @@ -352,6 +352,29 @@
  }
  
@@ -330,9 +329,9 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.c l
  * Set the requested temperature range for high and low alert signals
  *
  * @param    hwmgr The address of the hardware manager.
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-08-13 13:44:20.212281776 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h	2018-10-24 12:35:37.260611341 +0200
 @@ -51,6 +51,7 @@
  
  
@@ -341,10 +340,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_thermal.h l
  extern int vega10_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
  extern int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
  		struct phm_fan_speed_info *fan_speed_info);
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c	2018-08-13 13:44:20.212281776 +0200
-@@ -2110,6 +2110,7 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c	2018-10-24 12:35:37.260611341 +0200
+@@ -2372,6 +2372,7 @@
  	.set_fan_control_mode = vega12_set_fan_control_mode,
  	.get_fan_control_mode = vega12_get_fan_control_mode,
  	.read_sensor = vega12_read_sensor,
@@ -352,10 +351,10 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_hwmgr.c lin
  	.get_dal_power_level = vega12_get_dal_power_level,
  	.get_clock_by_type_with_latency = vega12_get_clock_by_type_with_latency,
  	.get_clock_by_type_with_voltage = vega12_get_clock_by_type_with_voltage,
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c	2018-08-13 14:04:52.398755155 +0200
-@@ -162,6 +162,28 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c	2018-10-24 12:35:37.260611341 +0200
+@@ -160,6 +160,28 @@
  }
  
  /**
@@ -384,9 +383,9 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.c l
  * Set the requested temperature range for high and low alert signals
  *
  * @param    hwmgr The address of the hardware manager.
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h	2018-08-13 13:44:20.212281776 +0200
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h	2018-10-24 12:35:37.260611341 +0200
 @@ -50,6 +50,7 @@
  #define FDO_PWM_MODE_STATIC_RPM 5
  
@@ -395,12 +394,12 @@ diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/hwmgr/vega12_thermal.h l
  extern int vega12_thermal_stop_thermal_controller(struct pp_hwmgr *hwmgr);
  extern int vega12_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
  		struct phm_fan_speed_info *fan_speed_info);
-diff -rau linux-4.18-orig/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h linux-4.18/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
---- linux-4.18-orig/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h	2018-08-12 22:41:04.000000000 +0200
-+++ linux-4.18/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h	2018-08-13 14:06:12.748126266 +0200
-@@ -330,6 +330,8 @@
+diff -rau linux-4.19-orig/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h linux-4.19/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
+--- linux-4.19-orig/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h	2018-10-22 08:37:37.000000000 +0200
++++ linux-4.19/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h	2018-10-24 12:35:37.263944651 +0200
+@@ -328,6 +328,8 @@
  	int (*set_power_limit)(struct pp_hwmgr *hwmgr, uint32_t n);
- 	int (*set_mmhub_powergating_by_smu)(struct pp_hwmgr *hwmgr);
+ 	int (*powergate_mmhub)(struct pp_hwmgr *hwmgr);
  	int (*smus_notify_pwe)(struct pp_hwmgr *hwmgr);
 +	// my ASIC MAX temperature
 +	int (*get_temperature_asic_max)(struct pp_hwmgr *hwmgr);
