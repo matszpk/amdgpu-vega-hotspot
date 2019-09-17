@@ -4,6 +4,10 @@ This simple patch introduces the additional temperature into hardware monitor:
 
 * temp2_input - (ASIC_MAX temperature) GPU hot spot temperature
 
+or
+
+* temp4_input - (ASIC_MAX temperature) GPU hot spot temperature (in AMDGPU since Linux 5.3)
+
 Exactly, this is an aggregated value, the maximal temperature from the internal sensors.
 
 Currently, this patch is for kernels 4.10 - 4.17.
