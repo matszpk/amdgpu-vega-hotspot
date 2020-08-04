@@ -1,0 +1,177 @@
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/cik.c linux-5.8/drivers/gpu/drm/radeon/cik.c
+--- linux-5.8-orig/drivers/gpu/drm/radeon/cik.c	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/cik.c	2020-08-04 17:31:54.194052541 +0200
+@@ -225,6 +225,26 @@
+ }
+ 
+ /* get temperature in millidegrees */
++int ci_get_temp_asic_max(struct radeon_device *rdev)
++{
++	u32 temp;
++	int actual_temp = 0;
++
++	temp = (RREG32_SMC(CG_MULT_THERMAL_STATUS) & ASIC_MAX_TEMP_MASK) >>
++		ASIC_MAX_TEMP_SHIFT;
++
++	if (temp & 0x200)
++		actual_temp = 255;
++	else
++		actual_temp = temp & 0x1ff;
++
++	actual_temp = actual_temp * 1000;
++
++	return actual_temp;
++}
++
++
++/* get temperature in millidegrees */
+ int kv_get_temp(struct radeon_device *rdev)
+ {
+ 	u32 temp;
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/radeon_asic.c linux-5.8/drivers/gpu/drm/radeon/radeon_asic.c
+--- linux-5.8-orig/drivers/gpu/drm/radeon/radeon_asic.c	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/radeon_asic.c	2020-08-04 17:31:54.194052541 +0200
+@@ -1994,6 +1994,7 @@
+ 		.set_uvd_clocks = &si_set_uvd_clocks,
+ 		.set_vce_clocks = &si_set_vce_clocks,
+ 		.get_temperature = &si_get_temp,
++		.get_temperature_asic_max = &si_get_temp_asic_max,
+ 	},
+ 	.dpm = {
+ 		.init = &si_dpm_init,
+@@ -2164,6 +2165,7 @@
+ 		.set_uvd_clocks = &cik_set_uvd_clocks,
+ 		.set_vce_clocks = &cik_set_vce_clocks,
+ 		.get_temperature = &ci_get_temp,
++		.get_temperature_asic_max = &ci_get_temp_asic_max,
+ 	},
+ 	.dpm = {
+ 		.init = &ci_dpm_init,
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/radeon_asic.h linux-5.8/drivers/gpu/drm/radeon/radeon_asic.h
+--- linux-5.8-orig/drivers/gpu/drm/radeon/radeon_asic.h	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/radeon_asic.h	2020-08-04 17:31:54.194052541 +0200
+@@ -749,6 +749,7 @@
+ int si_set_uvd_clocks(struct radeon_device *rdev, u32 vclk, u32 dclk);
+ int si_set_vce_clocks(struct radeon_device *rdev, u32 evclk, u32 ecclk);
+ int si_get_temp(struct radeon_device *rdev);
++int si_get_temp_asic_max(struct radeon_device *rdev);
+ int si_get_allowed_info_register(struct radeon_device *rdev,
+ 				 u32 reg, u32 *val);
+ int si_dpm_init(struct radeon_device *rdev);
+@@ -867,6 +868,7 @@
+ void cik_sdma_set_wptr(struct radeon_device *rdev,
+ 		       struct radeon_ring *ring);
+ int ci_get_temp(struct radeon_device *rdev);
++int ci_get_temp_asic_max(struct radeon_device *rdev);
+ int kv_get_temp(struct radeon_device *rdev);
+ int cik_get_allowed_info_register(struct radeon_device *rdev,
+ 				  u32 reg, u32 *val);
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/radeon.h linux-5.8/drivers/gpu/drm/radeon/radeon.h
+--- linux-5.8-orig/drivers/gpu/drm/radeon/radeon.h	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/radeon.h	2020-08-04 17:31:54.194052541 +0200
+@@ -1965,6 +1965,8 @@
+ 		int (*set_uvd_clocks)(struct radeon_device *rdev, u32 vclk, u32 dclk);
+ 		int (*set_vce_clocks)(struct radeon_device *rdev, u32 evclk, u32 ecclk);
+ 		int (*get_temperature)(struct radeon_device *rdev);
++		// my ASIC_MAX
++		int (*get_temperature_asic_max)(struct radeon_device *rdev);
+ 	} pm;
+ 	/* dynamic power management */
+ 	struct {
+@@ -2752,6 +2754,7 @@
+ #define radeon_set_uvd_clocks(rdev, v, d) (rdev)->asic->pm.set_uvd_clocks((rdev), (v), (d))
+ #define radeon_set_vce_clocks(rdev, ev, ec) (rdev)->asic->pm.set_vce_clocks((rdev), (ev), (ec))
+ #define radeon_get_temperature(rdev) (rdev)->asic->pm.get_temperature((rdev))
++#define radeon_get_temperature_asic_max(rdev) (rdev)->asic->pm.get_temperature_asic_max((rdev))
+ #define radeon_set_surface_reg(rdev, r, f, p, o, s) ((rdev)->asic->surface.set_reg((rdev), (r), (f), (p), (o), (s)))
+ #define radeon_clear_surface_reg(rdev, r) ((rdev)->asic->surface.clear_reg((rdev), (r)))
+ #define radeon_bandwidth_update(rdev) (rdev)->asic->display.bandwidth_update((rdev))
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/radeon_pm.c linux-5.8/drivers/gpu/drm/radeon/radeon_pm.c
+--- linux-5.8-orig/drivers/gpu/drm/radeon/radeon_pm.c	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/radeon_pm.c	2020-08-04 17:31:54.197385926 +0200
+@@ -688,6 +688,28 @@
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
+ }
+ 
++static ssize_t radeon_hwmon_show_temp_asic_max(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf)
++{
++	struct radeon_device *rdev = dev_get_drvdata(dev);
++	struct drm_device *ddev = rdev->ddev;
++	int temp;
++
++	/* Can't get temperature when the card is off */
++	if  ((rdev->flags & RADEON_IS_PX) &&
++	     (ddev->switch_power_state != DRM_SWITCH_POWER_ON))
++		return -EINVAL;
++
++	if (rdev->asic->pm.get_temperature_asic_max)
++		temp = radeon_get_temperature_asic_max(rdev);
++	else
++		temp = 0;
++
++	return snprintf(buf, PAGE_SIZE, "%d\n", temp);
++}
++
++
+ static ssize_t radeon_hwmon_show_temp_thresh(struct device *dev,
+ 					     struct device_attribute *attr,
+ 					     char *buf)
+@@ -707,6 +729,7 @@
+ static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, radeon_hwmon_show_temp, NULL, 0);
+ static SENSOR_DEVICE_ATTR(temp1_crit, S_IRUGO, radeon_hwmon_show_temp_thresh, NULL, 0);
+ static SENSOR_DEVICE_ATTR(temp1_crit_hyst, S_IRUGO, radeon_hwmon_show_temp_thresh, NULL, 1);
++static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, radeon_hwmon_show_temp_asic_max, NULL, 0);
+ static SENSOR_DEVICE_ATTR(pwm1, S_IRUGO | S_IWUSR, radeon_hwmon_get_pwm1, radeon_hwmon_set_pwm1, 0);
+ static SENSOR_DEVICE_ATTR(pwm1_enable, S_IRUGO | S_IWUSR, radeon_hwmon_get_pwm1_enable, radeon_hwmon_set_pwm1_enable, 0);
+ static SENSOR_DEVICE_ATTR(pwm1_min, S_IRUGO, radeon_hwmon_get_pwm1_min, NULL, 0);
+@@ -717,6 +740,7 @@
+ 	&sensor_dev_attr_temp1_input.dev_attr.attr,
+ 	&sensor_dev_attr_temp1_crit.dev_attr.attr,
+ 	&sensor_dev_attr_temp1_crit_hyst.dev_attr.attr,
++	&sensor_dev_attr_temp2_input.dev_attr.attr,
+ 	&sensor_dev_attr_pwm1.dev_attr.attr,
+ 	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
+ 	&sensor_dev_attr_pwm1_min.dev_attr.attr,
+@@ -731,6 +755,11 @@
+ 	struct radeon_device *rdev = dev_get_drvdata(dev);
+ 	umode_t effective_mode = attr->mode;
+ 
++	/* Skip attributes if no ASIC_MAX temperature */
++	if (!rdev->asic->pm.get_temperature_asic_max &&
++	    attr == &sensor_dev_attr_temp2_input.dev_attr.attr)
++		return 0;
++
+ 	/* Skip attributes if DPM is not enabled */
+ 	if (rdev->pm.pm_method != PM_METHOD_DPM &&
+ 	    (attr == &sensor_dev_attr_temp1_crit.dev_attr.attr ||
+diff -rau linux-5.8-orig/drivers/gpu/drm/radeon/si.c linux-5.8/drivers/gpu/drm/radeon/si.c
+--- linux-5.8-orig/drivers/gpu/drm/radeon/si.c	2020-08-02 23:21:45.000000000 +0200
++++ linux-5.8/drivers/gpu/drm/radeon/si.c	2020-08-04 17:31:54.200719311 +0200
+@@ -1375,6 +1375,25 @@
+ 	return actual_temp;
+ }
+ 
++/* get temperature in millidegrees */
++int si_get_temp_asic_max(struct radeon_device *rdev)
++{
++	u32 temp;
++	int actual_temp = 0;
++
++	temp = (RREG32(CG_MULT_THERMAL_STATUS) & ASIC_MAX_TEMP_MASK) >>
++		ASIC_MAX_TEMP_SHIFT;
++
++	if (temp & 0x200)
++		actual_temp = 255;
++	else
++		actual_temp = temp & 0x1ff;
++
++	actual_temp = (actual_temp * 1000);
++
++	return actual_temp;
++}
++
+ #define TAHITI_IO_MC_REGS_SIZE 36
+ 
+ static const u32 tahiti_io_mc_regs[TAHITI_IO_MC_REGS_SIZE][2] = {
